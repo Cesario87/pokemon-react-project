@@ -32,9 +32,9 @@ const Main = () => {
   }, [pokemonData]);
 
   return (
-    <div>
-      <input type="text" value={inputValue} onChange={handleInputChange} />
-      <button onClick={handleButtonClick}>Search</button>
+    <div data-testid="mainRenders">
+      <input type="text" data-testid="inputText" placeholder="Your pokemon name here" value={inputValue} onChange={handleInputChange} />
+      <button className="App_btn" onClick={handleButtonClick}>Search</button>
       {pokemonData && <Card pokemon={pokemonData} />}
       {pokemonList.map((pokemon) => (
         <Card key={pokemon.id} pokemon={pokemon} />
