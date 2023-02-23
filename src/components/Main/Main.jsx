@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Card from "./Card";
 
 const Main = () => {
@@ -6,35 +6,47 @@ const Main = () => {
   const [pokemonData, setPokemonData] = useState(null);
   const [pokemonList, setPokemonList] = useState([]);
 
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
+  const debounceTimeoutRef = useRef(null);
 
-  const handleButtonClick = async () => {
-    try {
-      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${inputValue}`);
-      const data = await response.json();
+  const handleInputChange = async (event) => {
+    const value = event.target.value;
+    setInputValue(value);
 
-      // Add the new Pokemon to the list
-      setPokemonList((prevPokemonList) => [...prevPokemonList, data]);
-
-      // Clear the old Pokemon data
-      setPokemonData(null);
-
-    } catch (error) {
-      console.error(error);
-      setPokemonData(null);
+    // Clear any existing timeout
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
     }
+
+    // Set a new timeout to make the fetch request
+    debounceTimeoutRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${value}`);
+        const data = await response.json();
+
+        // Check if the new Pokemon is already present in pokemonList
+        const pokemonAlreadyInList = pokemonList.find(pokemon => pokemon.id === data.id);
+        if (!pokemonAlreadyInList) {
+          // Add the new Pokemon to the list if it's not already present
+          setPokemonList((prevPokemonList) => [...prevPokemonList, data]);
+        }
+
+        // Set the Pokemon data for the current input value
+        setPokemonData(null);
+
+      } catch (error) {
+        console.error(error);
+        setPokemonData(null);
+      }
+    }, 1500);
   };
 
   useEffect(() => {
     setInputValue("");
-  }, [pokemonData]);
+  }, [pokemonList]);
 
   return (
     <div data-testid="mainRenders">
       <input type="text" data-testid="inputText" placeholder="Your pokemon name here" value={inputValue} onChange={handleInputChange} />
-      <button className="App_btn" onClick={handleButtonClick}>Search</button>
       {pokemonData && <Card pokemon={pokemonData} />}
       {pokemonList.map((pokemon) => (
         <Card key={pokemon.id} pokemon={pokemon} />
