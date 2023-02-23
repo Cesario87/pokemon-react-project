@@ -4,9 +4,9 @@ const Card = ({ pokemon }) => {
   const { name, id, height, weight, types, sprites } = pokemon;
 
   return (
-    <div>
-      <h2>{name}</h2>
-      <img src={sprites.front_default} alt={name} />
+    <div data-testid="cardRenders">
+      <h2 data-testid="Card__title">{name}</h2>
+      <img data-testid="Card__img" src={sprites.front_default} alt={name} />
       <p>ID: {id}</p>
       <p>Height: {height}</p>
       <p>Weight: {weight}</p>
